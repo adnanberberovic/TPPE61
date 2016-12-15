@@ -1,4 +1,7 @@
-n = 5; % Number of spline
+T_k = [0 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10]; % Contract maturities
+T_s = [0 1/12 3/12 6/12      1 2   4     7     10]; % Spline knot times
+t   = [0 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10]; % Constract cash flow times
+n = length(T_s) - 1; % Number of spline
 m = 10; % Number of assets
 P = zeros(4*n); % Permutation matrix
 
@@ -18,8 +21,7 @@ x_N = zeros(n+3,1); % Non-basic variables
 f_bar_B = f_bar(1:length(x_B));
 f_bar_N = f_bar(length(x_B)+1:end);
 
-B_B = -eye(size(x_B,1));
-B_N = zeros(size(x_B,1),size(x_N,1));
+[B_B, B_N] = generateB(n, T_s);
 b = zeros(size(x_B)); % R.h.s for spline conditions
 
 H = P*regul*P';
@@ -29,8 +31,9 @@ H_NN = H(length(x_B)+1:end,length(x_B)+1:end);
 H_NB = H(length(x_B)+1:end,1:length(x_B));
 
 % Re-compute every iteration
-g = zeros(m,1); % Takes forward interest to ois
-grad_g = zeros(4*n,m); % Gradient of function g 
+g = zeros(m,1); %g(f_tilde); % Takes forward interest to ois
+grad_g = zeros(4*n,m);
+%grad_g = gradientOIS(n, m, T_s, T_k, t, f_tilde); % Gradient of function g 
 grad_g_bar = P*grad_g; % Gradient with permutated rows
 grad_g_bar_B = grad_g_bar(1:length(x_B),:);
 grad_g_bar_N = grad_g_bar(length(x_B)+1:end,:);
