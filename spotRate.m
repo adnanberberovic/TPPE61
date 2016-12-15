@@ -1,28 +1,26 @@
-function [r] = spotRate(tSpline, coeffVec, tSpot)
+function [r] = spotRate(t, f, n, T_s)
 
 r = 0;
 
+for s = 1:n
+    tau = min(T_s(s+1), t);
+    r = r + (1/4)*f((s-1)*4 + 0)*(tau - T_s(s))^4 + ...
+            (1/3)*f((s-1)*4 + 1)*(tau - T_s(s))^3 + ...
+            (1/2)*f((s-1)*4 + 2)*(tau - T_s(s))^2 + ...
+                  f((s-1)*4 + 3)*(tau - T_s(s));
 
-for s = 1:length(tSpline)-1
-    
-    
-    if tSpot > tSpline(s+1)
-        r = r + (1/4)*coeffVec(s)*(tSpline(s+1) - tSpline(s))^4 + (1/3)*coeffVec(s+1)*(tSpline(s+1) - tSpline(s))^3 + (1/2)*coeffVec(s+2)*(tSpline(s+1) - tSpline(s))^2 + coeffVec(s+3)*(tSpline(s+1) - tSpline(s));
-    else 
-        r = r + (1/4)*coeffVec(s)*(tSpot - tSpline(s))^4 + (1/3)*coeffVec(s+1)*(tSpot - tSpline(s))^3 + (1/2)*coeffVec(s+2)*(tSpot - tSpline(s))^2 + coeffVec(s+3)*(tSpot - tSpline(s));
+    if tau == t
         break;
     end
-    
-    
-    
+end
+
+r = r / t;
+
 end
 
 
-end
 
-
-
-% För att istället integrera över varje segment i tMat:
+% Fï¿½r att istï¿½llet integrera ï¿½ver varje segment i tMat:
 % for i = 1:find(tMat == tSpot);
 %     
 %     if any(tSpline == tMat(i)) == 1 % if tMat(i) exists in tSpline use that one
