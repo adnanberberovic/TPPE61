@@ -9,7 +9,7 @@ function [ P ] = getPermutationMatrix( n )
     
     for i = 5:4*n
         if mod(i-1,4)==0
-           P(xb_length+i,i) = 1;
+           P(xb_length+(i-1)/4+4,i) = 1;
         else
             P(i-5,i) = 1;
         end

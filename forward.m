@@ -1,17 +1,20 @@
-T_k = [0 1/52 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
-T_s = [0 1/52 1/12 3/12 6/12      1 2   4     7     10       20    30]; % Spline knot times
+midPrices = getMidPrices();
+
+T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
+%T_s = [0 1/52 1/12      3/12 6/12      1 2   4     7     10       20    30]; % Spline knot times
+T_s = [0 1/52 1/12  3/12 6/12 1 2 30]; % Spline knot times
 n = length(T_s) - 1; % Number of spline
 m = length(T_k) - 1; % Number of assets
 t_h = 2;
 delta = 2;
-P = zeros(4*n); % Permutation matrix
+P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
-p = 1; % Penalty for pricing error
+p = 1000; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
-b_e = zeros(m,1); % Actual prices
+b_e = midPrices(:,1); %zeros(m,1); % Actual prices
 
 f = zeros(4*n,1); % Parameters for each spline
 f_tilde = zeros(size(f)); % Initial guess
@@ -32,8 +35,7 @@ H_NN = H(length(x_B)+1:end,length(x_B)+1:end);
 H_NB = H(length(x_B)+1:end,1:length(x_B));
 
 % Re-compute every iteration
-g = zeros(m,1); %g(f_tilde); % Takes forward interest to ois
-%grad_g = zeros(4*n,m);
+g = priceOIS(T_k, f_tilde, n, m, T_s); %zeros(m,1); % Takes forward interest to ois
 grad_g = gradientOIS(n, m, T_s, T_k, f_tilde); % Gradient of function g 
 grad_g_bar = P*grad_g; % Gradient with permutated rows
 grad_g_bar_B = grad_g_bar(1:length(x_B),:);
@@ -63,10 +65,20 @@ f_bar_N = f_bar(length(x_B)+1:end);
 f = f_tilde;
 
 
+%% evaluate splines
 
+fr = [];
+d = diff(T_s)*365;
+for i = 1:length(d)
+    t = (0:d(i))/365;
+    af = f((i-1)*4 + 1);
+    bf = f((i-1)*4 + 2);
+    cf = f((i-1)*4 + 3);
+    df = f((i-1)*4 + 4);
+    fr = [fr (af*t.^3 + bf*t.^2 + cf*t + df)];
+end
 
-
-
+plot(fr)
 
 
 
