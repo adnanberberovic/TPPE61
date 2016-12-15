@@ -6,7 +6,7 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
     % make spline of w²(x) and use coeffs as a^w, b^w, c^w and d^w
     % need delta, t_h, time vector (of maturities)
     
-    wSplineCoeff = makeW2Spline(t_h, delta);
+    wSplineCoeff = makeW2Spline(t_h*365, delta);
 
     % need to find all Q's according to definition in report
     timeIndStop = sum(T_s < t_h);
@@ -18,8 +18,8 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
     for i = 1:timeIndStop
         I1(1:2,1:2,i) = Q1(:,:,i);
     end
-    I2 = zeros(4,4,n-timeIndStop);
-    for i = 1:n-timeIndStop
+    I2 = zeros(4,4,n-timeIndStop+1);
+    for i = 1:n-timeIndStop+1
        I2(1:2,1:2,i) = Q2(:,:,i); 
     end
 
@@ -29,7 +29,7 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
     end
     preHmid = I1(:,:,timeIndStop) + I2(:,:,1);
     preH2 = I2(:,:,2);
-    for i = 3:n-timeIndStop
+    for i = 3:n-timeIndStop+1
        preH2 = blkdiag(preH2,I2(:,:,i));
     end
     
