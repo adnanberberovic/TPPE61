@@ -20,7 +20,7 @@ function [B_B, B_N] = generateB(n, T_s)
         end
     end
 
-    B_N = B_mod(:,[1:5,9:4:end])
+    B_N = B_mod(:,[1:5,9:4:end]);
     % extract column indeces used for B_B matrix
     indexesBB = 6:size(B_mod,2);
     indexUnWanted = 4:4:length(indexesBB);
