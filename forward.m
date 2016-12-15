@@ -1,6 +1,6 @@
-T_k = [0 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10]; % Contract maturities
-T_s = [0 1/12 3/12 6/12      1 2   4     7     10]; % Spline knot times
-t   = [0 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10]; % Constract cash flow times
+T_k = [0 1/52 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
+T_s = [0 1/52 1/12 3/12 6/12      1 2   4     7     10       20    30]; % Spline knot times
+t   = [0 1/52 1/12 3/12 6/12 9/12 1:T_k(end)]; % Contract cash flow times
 n = length(T_s) - 1; % Number of spline
 m = 10; % Number of assets
 P = zeros(4*n); % Permutation matrix
