@@ -1,11 +1,12 @@
 T_k = [0 1/52 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
 T_s = [0 1/52 1/12 3/12 6/12      1 2   4     7     10       20    30]; % Spline knot times
-t   = [0 1/52 1/12 3/12 6/12 9/12 1:T_k(end)]; % Contract cash flow times
 n = length(T_s) - 1; % Number of spline
-m = 10; % Number of assets
+m = length(T_k) - 1; % Number of assets
+t_h = 2;
+delta = 2;
 P = zeros(4*n); % Permutation matrix
 
-regul = zeros(4*n);% generateRegularistation(); % Computes regularisation matrix
+regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
 p = 1; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
@@ -32,8 +33,8 @@ H_NB = H(length(x_B)+1:end,1:length(x_B));
 
 % Re-compute every iteration
 g = zeros(m,1); %g(f_tilde); % Takes forward interest to ois
-grad_g = zeros(4*n,m);
-%grad_g = gradientOIS(n, m, T_s, T_k, t, f_tilde); % Gradient of function g 
+%grad_g = zeros(4*n,m);
+grad_g = gradientOIS(n, m, T_s, T_k, f_tilde); % Gradient of function g 
 grad_g_bar = P*grad_g; % Gradient with permutated rows
 grad_g_bar_B = grad_g_bar(1:length(x_B),:);
 grad_g_bar_N = grad_g_bar(length(x_B)+1:end,:);
