@@ -1,25 +1,45 @@
-function [dG] = gradientOIS(tMat, tSpline, coeffVec)
+function [dG] = gradientOIS(n, m, T_k, T_s, f_tilde)
 
-nContracts = length(tMat)-1;
-nSplines = length(tSpline)-1;
-delta = diff(tMat);
 
+% input example
+%T_k    = [0 1/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10]; m = length(T_k)-1;
+%T_s    = [0 1/12 3/12 6/12 9/12 1       5         10]; n = length(T_s)-1;
+%f_tilde = 0.01*ones(1, 4*nSplines); 
+
+
+
+
+
+delta = diff(T_k);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%  Täljare  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+T = zeros(m,1);
 
-
-
-
-
-
+for c = 1:m
+    
+    T(c) = 1 - exp(-spotRate(T_s, f_tilde, T_k(c+1)));
+    
+end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%  Nämnare  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N = zeros(m,1);
+
+for c = 1:m
+    
+    for i = 1:c
+        
+        N(c) = N(c) + delta(i)*exp(-spotRate(T_s, f_tilde, T_k(i+1))*T_k(i+1));
+        
+    end
+
+end
 
 
 
@@ -29,30 +49,31 @@ delta = diff(tMat);
 %%%%%%%%%%%%%%%%%%%%  dTäljare  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dT = zeros(nContracts, 4*nSplines);
 
-for c = 1:nContracts
+dT = zeros(4*n, m);
+
+for c = 1:m
     
-    maturity = tMat(c+1);
+    maturity = T_k(c+1);
     
-    dot = maturity*exp(-spotRate(tSpline, coeffVec, maturity)*maturity);
+    dot = maturity*exp(-spotRate(T_s, f_tilde, maturity)*maturity);
     
     d = 1;
-    for s = 1:nSplines
+    for s = 1:n
         
-        if maturity > tSpline(s+1)
-            dT(c,d) = dot*(1/4)*(tSpline(s+1)-tSpline(s))^4;
-            dT(c,d+1) = dot*(1/3)*(tSpline(s+1)-tSpline(s))^3; 
-            dT(c,d+2) = dot*(1/2)*(tSpline(s+1)-tSpline(s))^2;
-            dT(c,d+3) = dot*(tSpline(s+1)-tSpline(s));
+        if maturity > T_s(s+1)
+            dT(d,c) = dot*(1/4)*(T_s(s+1)-T_s(s))^4;
+            dT(d+1,c) = dot*(1/3)*(T_s(s+1)-T_s(s))^3; 
+            dT(d+2,c) = dot*(1/2)*(T_s(s+1)-T_s(s))^2;
+            dT(d+3,c) = dot*(T_s(s+1)-T_s(s));
             d = d + 4;
         else 
-            dT(c,d) = dot*(1/4)*(maturity-tSpline(s))^4;
-            dT(c,d+1) = dot*(1/3)*(maturity-tSpline(s))^3; 
-            dT(c,d+2) = dot*(1/2)*(maturity-tSpline(s))^2;
-            dT(c,d+3) = dot*(maturity-tSpline(s));
+            dT(d,c) = dot*(1/4)*(maturity-T_s(s))^4;
+            dT(d+1,c) = dot*(1/3)*(maturity-T_s(s))^3; 
+            dT(d+2,c) = dot*(1/2)*(maturity-T_s(s))^2;
+            dT(d+3,c) = dot*(maturity-T_s(s));
             
-            dT(c,d+4:end) = 0;
+            dT(d+4:end,c) = 0;
             break;
         end
         
@@ -64,27 +85,27 @@ end
 %%%%%%%%%%%%%%%%%%%%  dNämnare  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dN = zeros(nContracts, 4*nSplines);
+dN = zeros(4*n, m);
 
-for c = 1:nContracts
+for c = 1:m
     
-    maturity = tMat(c+1);
+    maturity = T_k(c+1);
     
     d = 1;
-    for s = 1:nSplines
+    for s = 1:n
         
-        if maturity > tSpline(s+1)
+        if maturity > T_s(s+1)
                
-            for i = 1:length(tMat)-1
-                if tMat(i) >= tSpline(s) && tMat(i) < tSpline(s+1)
+            for i = 1:length(T_k)-1
+                if T_k(i) >= T_s(s) && T_k(i) < T_s(s+1)
                     
-                    r = spotRate(tSpline, coeffVec, tMat(i+1));
+                    r = spotRate(T_s, f_tilde, T_k(i+1));
                     deltaT = delta(i);
                     
-                    dN(c,d)   = dN(c,d)   + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/4)*(tSpline(s+1)-tSpline(s))^4;
-                    dN(c,d+1) = dN(c,d+1) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/3)*(tSpline(s+1)-tSpline(s))^3;
-                    dN(c,d+2) = dN(c,d+2) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/2)*(tSpline(s+1)-tSpline(s))^2;
-                    dN(c,d+3) = dN(c,d+3) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*      (tSpline(s+1)-tSpline(s));
+                    dN(d,c)   = dN(d,c)   + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/4)*(T_s(s+1)-T_s(s))^4;
+                    dN(d+1,c) = dN(d+1,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/3)*(T_s(s+1)-T_s(s))^3;
+                    dN(d+2,c) = dN(d+2,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/2)*(T_s(s+1)-T_s(s))^2;
+                    dN(d+3,c) = dN(d+3,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*      (T_s(s+1)-T_s(s));
                 
                 end
             end
@@ -92,21 +113,21 @@ for c = 1:nContracts
             d = d + 4;
         else 
             
-            for i = 1:length(tMat)-1
-                if tMat(i) >= tSpline(s) && tMat(i) < tSpline(s+1)
+            for i = 1:length(T_k)-1
+                if T_k(i) >= T_s(s) && T_k(i) < T_s(s+1)
                     
-                    r = spotRate(tSpline, coeffVec, tMat(i+1));
+                    r = spotRate(T_s, f_tilde, T_k(i+1));
                     deltaT = delta(i);
                     
-                    dN(c,d)   = dN(c,d)   + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/4)*(tSpline(s+1)-tSpline(s))^4;
-                    dN(c,d+1) = dN(c,d+1) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/3)*(tSpline(s+1)-tSpline(s))^3;
-                    dN(c,d+2) = dN(c,d+2) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*(1/2)*(tSpline(s+1)-tSpline(s))^2;
-                    dN(c,d+3) = dN(c,d+3) + deltaT*(-tMat(i+1))*exp(-r*tMat(i+1))*      (tSpline(s+1)-tSpline(s));
+                    dN(d,c)   = dN(d,c)   + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/4)*(T_s(s+1)-T_s(s))^4;
+                    dN(d+1,c) = dN(d+1,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/3)*(T_s(s+1)-T_s(s))^3;
+                    dN(d+2,c) = dN(d+2,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*(1/2)*(T_s(s+1)-T_s(s))^2;
+                    dN(d+3,c) = dN(d+3,c) + deltaT*(-T_k(i+1))*exp(-r*T_k(i+1))*      (T_s(s+1)-T_s(s));
                 
                 end
             end
             
-            dN(c,d+4:end) = 0;
+            dN(d+4:end,c) = 0;
             break;
         end
 
@@ -119,9 +140,8 @@ end
 %%%%%%%%%%%%%%%%%%%%  Gradient  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-dG = (dT*N - dN*T) / (dN^2);
-
-
+dG = (dT.*repmat(N', 4*n, 1) - dN.*repmat(T', 4*n, 1)) ./ (dN.^2);
+dG(isnan(dG)) = 0;
 
 end
 
