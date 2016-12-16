@@ -2,7 +2,7 @@ midPrices = getMidPrices();
 
 T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
 %T_s = [0 1/52 1/12      3/12 6/12      1 2   4     7     10       20    30]; % Spline knot times
-T_s = [0 1/52 1/12 6/12 1 4 10 30]; % Spline knot times
+T_s = [0 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Spline knot times
 n = length(T_s) - 1; % Number of spline
 m = length(T_k) - 1; % Number of assets
 t_h = 2; % must be less than or equal to the last value in T_s to work
@@ -14,7 +14,7 @@ regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation ma
 p = 1000; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
-b_e = midPrices(:,1) / 100; %zeros(m,1); % Actual prices
+b_e = midPrices(:,50) / 100; %zeros(m,1); % Actual prices
 
 f = zeros(4*n,1); % Parameters for each spline
 f_tilde = zeros(size(f)); % Initial guess
@@ -79,7 +79,3 @@ for i = 1:length(d)
 end
 
 plot(fr)
-
-
-
-

@@ -18,4 +18,3 @@ function [ P ] = getPermutationMatrix( n )
     end
     
 end
-
