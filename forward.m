@@ -14,7 +14,7 @@ regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation ma
 p = 1000; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
-b_e = midPrices(:,end); %zeros(m,1); % Actual prices
+b_e = midPrices(:,1) / 100; %zeros(m,1); % Actual prices
 
 f = zeros(4*n,1); % Parameters for each spline
 f_tilde = zeros(size(f)); % Initial guess
