@@ -16,7 +16,8 @@ function [B_B, B_N] = generateB(n, T_s)
     for i = 4:size(B_mod,1)
         for j = 0:mod(i-4,3)
             multby2 = ((mod(i-5,3) == 0) && j == 1);
-            B_mod(i,:) = B_mod(i,:) + B_mod(i-3-j,:)*(T_s(j+2) - T_s(j+1)).^j *(1 + multby2);
+            t_i = floor((i-1)/3); % for row 4 t_i = 1
+            B_mod(i,:) = B_mod(i,:) + B_mod(i-3-j,:)*(T_s(t_i+2) - T_s(t_i+1)).^j *(1 + multby2);
         end
     end
 
