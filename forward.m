@@ -1,13 +1,13 @@
 midPrices = getMidPrices();
 
 T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
-T_s = [0 1 2 5 8 10 20 30]; % Spline knot times
+T_s = [0 6/12 1 2 5 8 10 20 30]; % Spline knot times
 %T_s = [0 6/12 1 4 8 20 20 30]; % Spline knot times
 n = length(T_s) - 1; % Number of spline
 m = length(T_k) - 1; % Number of assets
 t_h = 2; % must be less than or equal to the last value in T_s to work
 delta = 2;
-eksde = [];
+eksde = [];     %Objective value
 P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
@@ -49,21 +49,22 @@ for i = 1:5
     H_tilde = (B_B\B_N)'*H_BB*(B_B\B_N) - 2*(B_B\B_N)'*H_BN + H_NN + ...
               (A_N - A_B*(B_B\B_N))'*E*(A_N - A_B*(B_B\B_N));
     % Assuming b = 0
-    h_tilde = (-(inv(B_B)*b)'*H_BB*(inv(B_B)*B_N)+(inv(B_B)*b)'*H_BN+(A_B*inv(B_B)*b-a)'*E*(A_N-A_B*(B_B\B_N)) + f_bar_B'*(H_BN - H_BB*(B_B\B_N)) + ...
-    f_bar_N'*(H_NN - H_NB*(B_B\B_N)))';
+    h_tilde = (-(inv(B_B)*b)'*H_BB*(inv(B_B)*B_N)+(inv(B_B)*b)'*H_BN + ...
+        (A_B*inv(B_B)*b-a)'*E*(A_N-A_B*(B_B\B_N)) + ...
+        f_bar_B'*(H_BN - H_BB*(B_B\B_N)) + f_bar_N'*(H_NN - H_NB*(B_B\B_N)))';
 
     % Calculate solution
     x_N = -H_tilde\h_tilde;
     x_B = -B_B\B_N*x_N-b;
 
-    slll = 0.001:0.001:1;
-    for sllll = 1:length(slll)
-        sll = slll(sllll);
+    timesteps = 0.001:0.001:1;
+    for j = 1:length(timesteps)
+        sll = timesteps(j);
         x_N_ = sll*x_N;
         x_B_ = sll*x_B;
         f_tilde_ = f_tilde + P'*[x_B ; x_N];
         f_bar_ = P*f_tilde_;
-        eksde(i, sllll) = f_bar_'*H*f_bar_ + (A_B*x_B_+A_N*x_N_-a)'*E*(A_B*x_B_+A_N*x_N_-a);
+        eksde(i, j) = f_bar_'*H*f_bar_ + (A_B*x_B_+A_N*x_N_-a)'*E*(A_B*x_B_+A_N*x_N_-a);
     end
 
     % Update state
@@ -72,11 +73,8 @@ for i = 1:5
     f_bar_B = f_bar(1:length(x_B));
     f_bar_N = f_bar(length(x_B)+1:end);
 
-    %Objective value
-
     % Final result
     f = f_tilde;
-
 
     % evaluate splines
 
