@@ -9,8 +9,18 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
     wSplineCoeff = makeW2Spline(t_h*365, delta);
 
     % need to find all Q's according to definition in report
+    
+    % finds the time index at which to change from weighted splines to
+    % partly weighted/unweighted and after that unweighted
     timeIndStop = sum(T_s < t_h);
     
+    % Find the matrices that makes up the splines
+    if t_h > max(T_s)
+        t_h = max(T_s);
+        timeIndStop = timeIndStop - 1;
+        warning(strcat('t_h cannot be greater than the largest value ',...
+            'in T_s. t_h has been set to max(T_s).'));
+    end
     [Q1,Q2] = makeQMatrices(T_s, wSplineCoeff, t_h, ...
         timeIndStop, n);
     
@@ -28,13 +38,16 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
         preH1 = blkdiag(preH1,I1(:,:,i));
     end
     preHmid = I1(:,:,timeIndStop) + I2(:,:,1);
-    preH2 = I2(:,:,2);
-    for i = 3:n-timeIndStop+1
-       preH2 = blkdiag(preH2,I2(:,:,i));
+    
+    if timeIndStop < n
+        preH2 = I2(:,:,2);
+        for i = 3:n-timeIndStop+1
+            preH2 = blkdiag(preH2,I2(:,:,i));
+        end
+        H = blkdiag(preH1,preHmid,preH2);
+    else
+        H = blkdiag(preH1,preHmid);
     end
-    
-    H = blkdiag(preH1,preHmid,preH2);
-    
 end
 
 function [wSplineCoeff] = makeW2Spline(t_h, delta)
