@@ -1,6 +1,4 @@
 function [H] = generateRegularisation(T_s, t_h, delta, n)
-    % Adnan's function to generate regularisation
-    
     % blkdiag for putting matrices in diagonal, with 3d matrices
     % a = A(:,:,1), for i=2:size(A,3) {a = blkdiag(a,A(:,:,i))} end
     % make spline of w²(x) and use coeffs as a^w, b^w, c^w and d^w
