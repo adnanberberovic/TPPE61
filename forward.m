@@ -26,7 +26,7 @@ f_bar_B = f_bar(1:length(x_B));
 f_bar_N = f_bar(length(x_B)+1:end);
 
 [B_B, B_N] = generateB(n, T_s);
-b = zeros(size(x_B)); % R.h.s for spline conditions
+b = -f_bar_B-B_B\B_N*f_bar_N; % R.h.s for spline conditions
 
 H = P*regul*P';
 H_BB = H(1:length(x_B),1:length(x_B)); 
@@ -48,12 +48,12 @@ a = -F\(g-b_e);
 H_tilde = (B_B\B_N)'*H_BB*(B_B\B_N) - 2*(B_B\B_N)'*H_BN + H_NN + ...
           (A_N - A_B*(B_B\B_N))'*E*(A_N - A_B*(B_B\B_N));
 % Assuming b = 0
-h_tilde = ((-a)'*E*(A_N-A_B*(B_B\B_N)) + f_bar_B'*(H_BN - H_BB*(B_B\B_N)) + ...
-          f_bar_N'*(H_NN - H_NB*(B_B\B_N)))';
+h_tilde = (-(inv(B_B)*b)'*H_BB*(inv(B_B)*B_N)-(inv(B_B)*b)'*H_BN+(A_B*inv(B_B)*b-a)'*E*(A_N-A_B*(B_B\B_N)) + f_bar_B'*(H_BN - H_BB*(B_B\B_N)) + ...
+f_bar_N'*(H_NN - H_NB*(B_B\B_N)))';
 
 % Calculate solution
 x_N = -H_tilde\h_tilde;
-x_B = -(B_B\B_N)*x_N;
+x_B = -B_B\B_N*x_N+b;
 
 % Update state
 f_tilde = f_tilde + P'*[x_B ; x_N];
