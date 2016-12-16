@@ -75,7 +75,7 @@ for i = 1:length(d)
     bf = f((i-1)*4 + 2);
     cf = f((i-1)*4 + 3);
     df = f((i-1)*4 + 4);
-    fr = [fr (af*(t-T_s(i)).^3 + bf*(t-T_s(i)).^2 + cf*(t-T_s(i)) + df)];
+    fr = [fr (af*(t).^3 + bf*(t).^2 + cf*(t) + df)];
 end
 
 plot(fr)
