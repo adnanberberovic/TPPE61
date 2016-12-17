@@ -22,7 +22,7 @@ end
 dT = zeros(4*n, m);
 for c = 1:m
     maturity = T_k(c+1);
-    dot = maturity*exp(-spotRate(maturity, f, n, T_s) * maturity);
+    dot = 1*exp(-spotRate(maturity, f, n, T_s) * maturity);
     d = 1;
     for s = 1:n
         if maturity > T_s(s+1)
@@ -60,10 +60,10 @@ for c = 1:m
             deltaT = delta(i);
             tau = min(T_s(s+1), t(i));
             
-            dN(d,c)   = dN(d,c)   + deltaT*(-t(i))*exp(-r*t(i))*(1/4)*(tau - T_s(s))^4;
-            dN(d+1,c) = dN(d+1,c) + deltaT*(-t(i))*exp(-r*t(i))*(1/3)*(tau - T_s(s))^3;
-            dN(d+2,c) = dN(d+2,c) + deltaT*(-t(i))*exp(-r*t(i))*(1/2)*(tau - T_s(s))^2;
-            dN(d+3,c) = dN(d+3,c) + deltaT*(-t(i))*exp(-r*t(i))*      (tau - T_s(s));
+            dN(d,c)   = dN(d,c)   + deltaT*(-1)*exp(-r*t(i))*(1/4)*(tau - T_s(s))^4;
+            dN(d+1,c) = dN(d+1,c) + deltaT*(-1)*exp(-r*t(i))*(1/3)*(tau - T_s(s))^3;
+            dN(d+2,c) = dN(d+2,c) + deltaT*(-1)*exp(-r*t(i))*(1/2)*(tau - T_s(s))^2;
+            dN(d+3,c) = dN(d+3,c) + deltaT*(-1)*exp(-r*t(i))*      (tau - T_s(s));
         end
         
         d = d + 4;
