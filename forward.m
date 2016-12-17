@@ -18,9 +18,9 @@ F = eye(m);
 
 forwardcurves = [];
 % Build curvez for all days
-for day = 1:size(midPrices,2)-400
+for day = size(midPrices,2):-1:1
 
-    b_e = midPrices(:,10) / 100; %zeros(m,1); % Actual prices
+    b_e = midPrices(:,day) / 100; %zeros(m,1); % Actual prices
 
     f = zeros(4*n,1); % Parameters for each spline
     f_tilde = zeros(size(f)); % Initial guess
@@ -32,7 +32,7 @@ for day = 1:size(midPrices,2)-400
     f_bar_N = f_bar(length(x_B)+1:end);
 
     % While 
-    for i = 1:10
+    for i = 1:5
         [B_B, B_N] = generateB(n, T_s);
         b=-B_B*f_bar_B-B_N*f_bar_N;
         H = P*regul*P';
@@ -96,7 +96,9 @@ for day = 1:size(midPrices,2)-400
         end
 
     end
-
+    
+    dt = 30/size(fr,2);
+    pause(0.01);
+    plot(dt:dt:30,fr);
     forwardcurves(day,:) = fr;
-
 end
