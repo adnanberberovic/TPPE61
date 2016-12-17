@@ -49,7 +49,7 @@ function [H] = generateRegularisation(T_s, t_h, delta, n)
 end
 
 function [wSplineCoeff] = makeW2Spline(t_h, delta)
-    timevec = 0:730;
+    timevec = 0:t_h;
     w2fun = @(t) exp(log(delta)*(t-t_h)/365);
     wSplineCoeff = polyfit(timevec,w2fun(timevec),3);
 end
