@@ -102,3 +102,4 @@ for day = size(midPrices,2):-1:1
     plot(dt:dt:30,fr);
     forwardcurves(day,:) = fr;
 end
+forwardCurves = flipud(forwardcurves);
