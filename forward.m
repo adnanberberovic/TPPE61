@@ -1,10 +1,11 @@
 midPrices = getMidPrices();
 
-T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20 25 30]; % Contract maturities
-T_s = [0 6/12 1 2 5 8 10 20 30]; % Spline knot times
+T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20];% 25 30]; % Contract maturities
+T_s = [0 6/12 1 2 3 4 5 6 7 8 9 10 12 15 20]; %25 30]; % Spline knot times
 %T_s = [0 6/12 1 4 8 20 20 30]; % Spline knot times
 n = length(T_s) - 1; % Number of spline
 m = length(T_k) - 1; % Number of assets
+finalMaturity = max(T_k); % Used for plotting against TtM axis
 t_h = 2; % must be less than or equal to the last value in T_s to work
 delta = 2;
 eksde = [];     %Objective value
@@ -12,7 +13,7 @@ P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
-p = 100; % Penalty for pricing error
+p = 1000; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
 
@@ -20,7 +21,7 @@ forwardcurves = [];
 % Build curvez for all days
 for day = size(midPrices,2):-1:1
 
-    b_e = midPrices(:,day) / 100; %zeros(m,1); % Actual prices
+    b_e = midPrices(1:m,day) / 100; %zeros(m,1); % Actual prices
 
     f = zeros(4*n,1); % Parameters for each spline
     f_tilde = zeros(size(f)); % Initial guess
@@ -97,9 +98,9 @@ for day = size(midPrices,2):-1:1
 
     end
     
-    dt = 30/size(fr,2);
+    dt = finalMaturity/size(fr,2);
     pause(0.01);
-    plot(dt:dt:30,fr);
+    plot(dt:dt:finalMaturity,fr);
     forwardcurves(day,:) = fr;
 end
 forwardCurvesSplines = flipud(forwardcurves);

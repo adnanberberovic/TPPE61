@@ -1,11 +1,17 @@
-% Evaluation of OIS Forward Rate Curves
+% Evaluation of OIS Forward Rate Curves with LSExpSpline
 reloadData = false;
+dataLength = 20; % longest maturity in years
+var = 1;
+dataFile = ['Splines' num2str(dataLength) '_' num2str(var) '.mat'];
+
+forwardData = ['forwardCurve' dataFile];
+pcaData = ['EVD_' dataFile];
 if ~exist('forwardCurvesSplines','var') || reloadData
-    load forwardCurveSplines.mat
+    load(forwardData);
 end
 
 % settings
-dt = 30/size(forwardCurvesSplines,2);
+dt = dataLength/size(forwardCurvesSplines,2);
 lastPC = 4; %must be <= 9
 % from this point and forward, the curve contains data for all maturities
 % up to 30 years.
@@ -13,7 +19,7 @@ lastPC = 4; %must be <= 9
 % The code block in "if reloadData" takes a long time to run. the outputs 
 % have been saved in EVD...mat
 if ~exist('totEigVal','var') && ~reloadData
-    load EVD_Splines.mat
+    load(pcaData);
 end
 if reloadData
     % contains all the forward rate curves
@@ -22,17 +28,16 @@ if reloadData
     [forwardEigVecSplines, forwardEigValSplines] = eig(forwardCov);
     forwardEigVecSplines = fliplr(forwardEigVecSplines);
     forwardEigValSplines = rot90(forwardEigValSplines,2);
-    totEigValSplines = sum(sum(forwardEigValSplines));  
+    totEigValSplines = sum(sum(forwardEigValSplines));
     loadingsPCSplines = forwardEigVecSplines(:,1:lastPC);
     weightsPCSplines = diag(forwardEigValSplines(1:lastPC,1:lastPC))/totEigValSplines;
     totPCWeightSplines = sum(weightsPCSplines);  
-    save('EVD_Splines.mat','loadingsPCSplines','weightsPCSplines','totPCWeightSplines','totEigValSplines');
+    save(pcaData,'loadingsPCSplines','weightsPCSplines','totPCWeightSplines','totEigValSplines');
 end
 
 plotPC = 4; % must be <= lastPC
 legendPC = repmat(char(0),plotPC,3);
 for i = 1:plotPC
-    %tmpLeg = strcat('PC ',num2str(i),'(',num2str(round(weightsPC(i),4)*100),'%)');
     legendPC(i,:) = strcat('PC ',num2str(i));
 end
 
