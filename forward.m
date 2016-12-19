@@ -1,8 +1,8 @@
 midPrices = getMidPrices();
 
 T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20];% 25 30]; % Contract maturities
-T_s = [0 6/12 1 2 3 4 5 6 7 8 9 10 12 15 20]; %25 30]; % Spline knot times
-%T_s = [0 6/12 1 4 8 20 20 30]; % Spline knot times
+T_s = [0 6/12 1 2 3 4 5 6 7 8 9 10 12 15 20]; % Spline knot times
+
 n = length(T_s) - 1; % Number of spline
 m = length(T_k) - 1; % Number of assets
 finalMaturity = max(T_k); % Used for plotting against TtM axis
@@ -13,7 +13,7 @@ P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
-p = 1000; % Penalty for pricing error
+p = 100; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
 
