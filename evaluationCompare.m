@@ -1,7 +1,7 @@
 % Comparison between LSExp curves and LSExpSpline curves
 reloadData = true;
-compareForward = true;
-comparePC = false;
+compareForward = false;
+comparePC = true;
 invPC = 1; % when running with comparePC=true, if the factor loadings are 
            % inverted, just add or remove a minus sign from the 1 here.
 dataLength = 30; % longest maturity (20 or 30)

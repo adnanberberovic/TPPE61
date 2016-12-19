@@ -1,8 +1,8 @@
 % Evaluation of OIS Forward Rate Curves with LSExpSpline
 reloadData = true;
-dataLength = 30; % longest maturity in years
-var = 1; % set of spline curves
-pvar = 100; % penalty induced
+dataLength = 20; % longest maturity in years
+var = 5; % set of spline curves
+pvar = 1000000; % penalty induced
 dataFile = ['Splines' num2str(dataLength) '_' num2str(var) '_' num2str(pvar) '.mat'];
 
 forwardData = ['forwardCurve' dataFile];
