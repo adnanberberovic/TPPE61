@@ -1,10 +1,16 @@
 midPrices = getMidPrices();
 
+% The user is allowed to change T_k, T_s, var and p. Check the comments
+% next to these variables to see what they are.
+
 T_k = [0 1/52 1/12 2/12 3/12 6/12 9/12 1 2 3 4 5 6 7 8 9 10 12 15 20];% 25 30]; % Contract maturities
 T_s = [0 3/12 6/12 1 2 3 4 5 6 7 8 9 10 12 15 20]; % Spline knot times
 
 % for saving forward rate curves
-var = 5;
+var = 5; % make sure that for different choices of T_s, this value is
+         % changed. For the same choices of T_s, when changing p and the
+         % maximum time to maturity, var should be the same, i.e some value
+         % for var should correspond to one unique configuration of T_s.
 finalMaturity = max(T_k); % Used for plotting against TtM axis and saving
 
 n = length(T_s) - 1; % Number of spline
@@ -16,7 +22,7 @@ P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
-p = 1000000; % Penalty for pricing error
+p = 1000; % Penalty for pricing error (this can be changed).
 E = p*eye(m); % Penalty matrix, zEz
 F = eye(m);
 
