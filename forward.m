@@ -13,7 +13,7 @@ P = getPermutationMatrix(n); % Permutation matrix
 
 regul = generateRegularisation(T_s, t_h, delta, n); % Computes regularisation matrix
 
-p = 100; % Penalty for pricing error
+p = 1000; % Penalty for pricing error
 E = p*eye(m); % Penalty matrix, zEz 
 F = eye(m);
 
